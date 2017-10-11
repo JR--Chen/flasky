@@ -1,0 +1,13 @@
+<p>Dear {{ user.username }},</p>
+<p>欢迎你来到 <b>黑科校际</b>!</p>
+<p></p>
+<p>请点击下面的链接即可确认注册： <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">click here</a>.</p>
+<p>Alternatively, 以下链接可以复制后在浏览器打开</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
+<p></p>
+<p>在此我们非常感谢你对黑科校际的支持！</p>
+<p></p>
+<p>更多功能正在完善中</p>
+<p></p>
+<p>如果需要联系开发者或有任何反馈，可以直接回复这份邮件</p>
+<p><small>黑科校际团队</small></p>
