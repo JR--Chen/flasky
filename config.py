@@ -6,9 +6,9 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'wtf man'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    FLASKY_MAIL_SUBJECT_PREFIX = '[黑科校际]'
+    FLASKY_MAIL_SUBJECT_PREFIX = '[JR Chan]'
     ADMINS = os.environ.get('FLASKY_ADMIN') or '546159053@qq.com'
-    FLASKY_MAIL_SENDER = 'JR Chan <546159053@qq.com>'
+    FLASKY_MAIL_SENDER = '黑科校际 <546159053@qq.com>'
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 465
     MAIL_USE_SSL = True

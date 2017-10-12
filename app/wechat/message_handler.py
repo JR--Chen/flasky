@@ -2,8 +2,6 @@ from ..models import WechatUser
 from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for
 
-BASE_URL = 'http://www.mrbeen.cn'
-
 
 def message_handle(message, basic):
     """
@@ -83,7 +81,7 @@ def _click(key, source, basic):
 
     if key == 'V1001_TODAY_MUSIC':
         if user is None:
-            url = BASE_URL + url_for('wechat.login', openid=source)
+            url = url_for('wechat.login', openid=source, _external=True)
             reply = _href(url, '点我绑定')
             response = basic.response_text(content=reply)
         else:
