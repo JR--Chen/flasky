@@ -14,6 +14,7 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = '546159053@qq.com'
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    FLASKY_POSTS_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):
