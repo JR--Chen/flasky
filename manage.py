@@ -41,6 +41,7 @@ def deploy():
 
     # create user roles
     Role.insert_roles()
+    User.add_self_follows()
 
 
 @manager.command
