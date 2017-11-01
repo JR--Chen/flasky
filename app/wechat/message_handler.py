@@ -1,7 +1,7 @@
 from ..models import WechatUser
 from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for
-
+from .. import db
 
 def message_handle(message, basic):
     """
@@ -72,6 +72,22 @@ def _text_reply(content, source, basic):
     elif content in['作息', '时刻表', '冬令时', '时间', '休息']:
         response = basic.response_image(media_id='qcf_h2hm7P1RL81csrh8MHstoytIAQOkEH4Jej5T4io')
 
+    elif content == '绑定':
+        response = _check_bind(source, basic)
+
+    elif content in ['考试', '考试时间']:
+        user = WechatUser.query.filter_by(openid=source).first()
+        if user is None:
+            response = _check_bind(source, basic)
+        else:
+            sql = r"SELECT * FROM 2017exam WHERE classname LIKE '%%{}%%'".format(user.classname)
+            result = db.engine.execute(sql).fetchall()
+
+            reply = ''
+            for item in result:
+                reply = reply+'日期:'+item[1]+'时间:'+item[2]+'科目:'+item[4]+'\n\n'
+            response = basic.response_text(content=reply)
+
     return response
 
 
@@ -93,3 +109,10 @@ def _click(key, source, basic):
 
 def _href(url, content):
     return '<a href="%s">%s</a>' % (url, content)
+
+
+def _check_bind(source, basic):
+    url = url_for('wechat.login', openid=source, _external=True)
+    reply = _href(url, '亲，请先点我绑定(*^__^*) ')
+    response = basic.response_text(content=reply)
+    return response

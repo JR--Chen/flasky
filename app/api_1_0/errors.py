@@ -1,7 +1,5 @@
-from flask import jsonify, request, g
+from flask import jsonify
 from . import api
-from ..models import Post
-from .. import db
 from ..exceptions import ValidationError
 
 
