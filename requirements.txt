@@ -2,6 +2,7 @@ alembic==0.9.5
 asn1crypto==0.22.0
 attrs==17.2.0
 Automat==0.6.0
+bleach==2.1.1
 blinker==1.4
 cffi==1.10.0
 click==6.7
@@ -20,6 +21,8 @@ Flask-PageDown==0.2.2
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.2
 Flask-WTF==0.14.2
+ForgeryPy==0.1
+html5lib==1.0b10
 httmock==1.2.6
 hyperlink==17.3.1
 idna==2.6
@@ -28,6 +31,7 @@ itsdangerous==0.24
 Jinja2==2.9.6
 lxml==3.8.0
 Mako==1.0.7
+Markdown==2.6.9
 MarkupSafe==1.0
 Naked==0.1.31
 parsel==1.2.0
@@ -49,6 +53,7 @@ six==1.10.0
 SQLAlchemy==1.1.14
 visitor==0.1.3
 w3lib==1.18.0
+webencodings==0.5.1
 wechat-sdk==0.6.4
 Werkzeug==0.12.2
 WTForms==2.1
