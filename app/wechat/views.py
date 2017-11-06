@@ -76,8 +76,7 @@ def login(openid):
                 classname=stuinfo['className'])
             db.session.add(user)
             db.session.commit()
-            flash('绑定成功')
-        return redirect(url_for('main.index'))
+            flash('绑定成功，回到公众号界面回复关键词即可。')
     return render_template('wechat/login.html', form=form)
 
 

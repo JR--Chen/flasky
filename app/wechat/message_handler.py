@@ -3,6 +3,7 @@ from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for
 from .. import db
 
+
 def message_handle(message, basic):
     """
     判断传入的信息类型并进行处理
