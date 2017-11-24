@@ -1,7 +1,7 @@
 import os
 import requests
 from wechat_sdk import WechatBasic, WechatConf
-from wechat_sdk.exceptions import OfficialAPIError
+
 
 menu1 = \
     {
@@ -117,8 +117,8 @@ def getbasic():
 
     conf = WechatConf(
         token=os.environ.get('WECHAT_TOKEN'),
-        appid='wx2fa77d7048b61431',
-        appsecret='d9dd89550c7c221d44ccd581a6558fd6',
+        appid='wx2212ea680ca5c05d',
+        appsecret='73a85135d506a54cdb745f4268c48244',
         encrypt_mode='normal',
     )
 
@@ -152,4 +152,4 @@ def manage_menu():
 
 
 if __name__ == '__main__':
-    main()
+    get_menue()

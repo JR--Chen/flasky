@@ -67,11 +67,14 @@ def login(openid):
             flash('你的账号或者密码错误')
         else:
             stuinfo = result['status']['stuinfo']
+            name = stuinfo['name']
+            if name.endswith('班'):
+                name = name[:-1]
             user = WechatUser(
                 openid=openid,
                 account=form.account.data,
                 passwd=form.passwd.data,
-                name=stuinfo['name'],
+                name=name,
                 academy=stuinfo['major'],
                 classname=stuinfo['className'])
             db.session.add(user)

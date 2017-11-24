@@ -5,6 +5,9 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
 from ..models import User, Role, Post, Permission, Comment
 from ..decorators import admin_required, permission_required
+from config import APP_STATIC
+import json
+import os
 
 
 @main.route('/', methods=["GET", "POST"])
@@ -221,3 +224,43 @@ def moderate_disable(id):
     comment.disabled = True
     db.session.add(comment)
     return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/gulnazar')
+def gulnazar_gallery():
+    # url_list = ['http://ww4.sinaimg.cn/thumb180/006ybcKQly1flontfpfkej31sd2qf4qq.jpg', 'http://ww4.sinaimg.cn/thumb180/006ybcKQly1flontgc7uhj31sd2qfkjm.jpg', 'http://ww3.sinaimg.cn/thumb180/006ybcKQly1flontgz16mj31tm2qfb2a.jpg', 'http://ww1.sinaimg.cn/thumb180/006ybcKQly1flonthh6gyj31tm2qf7wi.jpg', 'http://ww1.sinaimg.cn/thumb180/006ybcKQly1flonthyx79j31tm2qf4qr.jpg', 'http://ww1.sinaimg.cn/thumb180/006ybcKQly1flontimj1pj31sd2qf1kz.jpg']
+    # single_list = {'11月20日 17:08': url_list}
+
+    with open(os.path.join(APP_STATIC, 'gulnazar_pic_list.json'), 'r', encoding='utf-8') as json_file:
+        single_list = json.load(json_file)
+
+    width_list = []
+    for key, value in single_list.items():
+        length = len(single_list[key])
+        width = 0
+        if length == 1:
+            width = 12
+        elif 1 < length < 4:
+            width = 12 / length
+        elif length == 4:
+            width = 6
+        elif 4 < length < 9:
+            width = 12 / int(length / 2)
+        elif length == 9:
+            width = 4
+        width_list.append(int(width))
+
+        new_url_list = []
+        for url in value:
+            sub = url.split('/')[3]
+            small = url.replace(sub, 'mw690')
+            large = url.replace(sub, 'large')
+
+            new_url = {
+                'small': small,
+                'large': large
+            }
+            new_url_list.append(new_url)
+        single_list[key] = new_url_list
+
+    return render_template('gulnazar.html', single_list=single_list, width_list=width_list)

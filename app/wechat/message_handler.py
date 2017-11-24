@@ -83,11 +83,27 @@ def _text_reply(content, source, basic):
         else:
             sql = r"SELECT * FROM 2017exam WHERE classname LIKE '%%{}%%'".format(user.classname)
             result = db.engine.execute(sql).fetchall()
-
             reply = ''
-            for item in result:
-                reply = reply+'日期:'+item[1]+'时间:'+item[2]+'科目:'+item[4]+'\n\n'
+
+            if result == []:
+                reply = 'sry~暂时还没有你的考试信息,我们会尽快添加'
+
+            else:
+                for item in result:
+                    reply = reply+'科目:'+item[4]+'\n''日期:'+item[1]+'\n'+'时间:'+item[2]+'\n'+'教室:'+item[5]+'\n\n'
+
             response = basic.response_text(content=reply)
+
+    elif content in ['解除绑定', '解绑']:
+        user = WechatUser.query.filter_by(openid=source).first()
+
+        reply = '你还没有绑定'
+
+        if user is None:
+            db.session.delete(user)
+            db.session.commit()
+            reply = '解除绑定成功'
+        response = basic.response_text(content=reply)
 
     return response
 
@@ -113,7 +129,12 @@ def _href(url, content):
 
 
 def _check_bind(source, basic):
-    url = url_for('wechat.login', openid=source, _external=True)
-    reply = _href(url, '亲，请先点我绑定(*^__^*) ')
+    user = WechatUser.query.filter_by(openid=source).first()
+    if user is None:
+        url = url_for('wechat.login', openid=source, _external=True)
+        reply = _href(url, '亲，请先点我绑定(*^__^*) ')
+    else:
+        reply = '已经绑定过了，回复要查询的关健词就可以啦~'
+
     response = basic.response_text(content=reply)
     return response
