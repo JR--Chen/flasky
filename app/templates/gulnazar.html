@@ -1,3 +1,5 @@
+{% import "_macros.html" as macros %}
+
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -39,16 +41,16 @@
         </div>
         <!-- 照片展示栏 -->
         <div class="marketing text-muted container">
-            {% for post_data, url_list in single_list.items() %}
+            {% for item in all_pic_list %}
                 {% set key = loop.index0 %}
                 <div class="featurette">
-                    <h3>{{ post_data }}</h3>
+                    <h3>{{ item['date'] }}</h3>
                     {% if width_list[key] == 12%}
                         <!-- 只有一张照骗 -->
                         <div class="row justify-content-center">
                             <div class="col-sm-10" data-code="example-1">
-                                <a href="{{ url_list[0].large  }}" data-toggle="lightbox" class="col-sm-12">
-                                    <img src="{{ url_list[0].small }}" class="img-fluid">
+                                <a href="{{ item['url'][0].large  }}" data-toggle="lightbox" class="col-sm-12">
+                                    <img src="{{ item['url'][0].small }}" class="img-fluid">
                                 </a>
                             </div>
                         </div>
@@ -57,7 +59,7 @@
                     <div class="row justify-content-center">
                         <div class="col-sm">
                             <div class="row">
-                                {% for url in url_list %}
+                                {% for url in item['url'] %}
                                 <a href="{{ url.large }}" data-toggle="lightbox" data-gallery="example-gallery" class="col-sm-{{ width_list[key]}}" style="margin-bottom: 10px">
                                     <img src="{{ url.small }}" class="img-fluid">
                                 </a>
@@ -70,8 +72,14 @@
                 <hr class="featurette-divider">
             {% endfor %}
         </div>
-
     </main>
+      {% if pagination %}
+          {{ pagination.info }}
+          {{ pagination.links }}
+        <div class="pagination">
+
+        </div>
+      {% endif %}
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
