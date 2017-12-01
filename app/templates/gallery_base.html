@@ -1,0 +1,95 @@
+{% extends "bootstrap4.html" %}
+
+{% block title %}{{ super() }}{% endblock title %}
+
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/ekko-lightbox.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Gallery</a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('gallery.gallery', name='gulnazar') }}">古力娜扎 <span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('gallery.gallery', name='dilraba') }}">迪丽热巴</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('gallery.gallery', name='dongyu') }}">周冬雨</a>
+                  </li>
+                </ul>
+              </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/ekko-lightbox.js') }}"></script>
+        <script type="text/javascript">
+        $(document).ready(function ($) {
+            // delegate calls to data-toggle="lightbox"
+            $(document).on('click', '[data-toggle="lightbox"]:not([data-gallery="navigateTo"]):not([data-gallery="example-gallery-11"])', function(event) {
+                event.preventDefault();
+                return $(this).ekkoLightbox({
+                    onShown: function() {
+                        if (window.console) {
+                            return console.log('Checking our the events huh?');
+                        }
+                    },
+                    onNavigate: function(direction, itemIndex) {
+                        if (window.console) {
+                            return console.log('Navigating '+direction+'. Current item: '+itemIndex);
+                        }
+                    }
+                });
+            });
+
+            // disable wrapping
+            $(document).on('click', '[data-toggle="lightbox"][data-gallery="example-gallery-11"]', function(event) {
+                event.preventDefault();
+                return $(this).ekkoLightbox({
+                    wrapping: false
+                });
+            });
+
+            //Programmatically call
+            $('#open-image').click(function (e) {
+                e.preventDefault();
+                $(this).ekkoLightbox();
+            });
+            $('#open-youtube').click(function (e) {
+                e.preventDefault();
+                $(this).ekkoLightbox();
+            });
+
+            // navigateTo
+            $(document).on('click', '[data-toggle="lightbox"][data-gallery="navigateTo"]', function(event) {
+                event.preventDefault();
+
+                return $(this).ekkoLightbox({
+                    onShown: function() {
+
+                        this.modal().on('click', '.modal-footer a', function(e) {
+
+                            e.preventDefault();
+                            this.navigateTo(2);
+
+                        }.bind(this));
+
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

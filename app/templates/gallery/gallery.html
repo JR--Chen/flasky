@@ -1,0 +1,63 @@
+{% extends "gallery_base.html" %}
+
+{% block head %}
+{{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename=filename) }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename=filename) }}" type="image/x-icon">
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content -%}
+    <main role="main">
+        <!-- 介绍栏 -->
+    {% if page == 1 %}
+        <div class="jumbotron masthead">
+            <div class="container">
+              <h1>Gallery</h1>
+              <h2>简洁、直观、强悍的自动化部署相册，让吸毒更简单。</h2>
+              <p class="masthead-button-links">
+                <a class="btn btn-lg btn-primary btn-shadow" href="https://github.com/JR--Chen/flasky" target="_blank" role="button">项目地址</a>
+              </p>
+                <h2 class="lead text-muted">有时间再多加点功能吧！╮(╯▽╰)╭</h2>
+            </div>
+      </div>
+    {% endif %}
+        <!-- 照片展示栏 -->
+        <div class="marketing text-muted container" style="margin-top: 10px">
+            {% for item in all_pic_list %}
+                {% set key = loop.index0 %}
+                <div class="featurette">
+                    <h3>{{ item['date'] }}</h3>
+                    {% if width_list[key] == 12%}
+                        <!-- 只有一张照骗 -->
+                        <div class="row justify-content-center">
+                            <div class="col-sm-10" data-code="example-1">
+                                <a href="{{ item['url'][0].large  }}" data-toggle="lightbox" class="col-sm-12">
+                                    <img src="{{ item['url'][0].small }}" class="img-fluid">
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- 多张照片-->
+                    <div class="row justify-content-center">
+                        <div class="col-sm">
+                            <div class="row">
+                                {% for url in item['url'] %}
+                                <a href="{{ url.large }}" data-toggle="lightbox" data-gallery="example-gallery" class="col-sm-{{ width_list[key]}}" style="margin-bottom: 10px">
+                                    <img src="{{ url.small }}" class="img-fluid">
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <hr class="featurette-divider">
+            {% endfor %}
+        </div>
+    </main>
+      {% if pagination %}
+            {{ pagination.links }}
+      {% endif %}
+{%- endblock content %}

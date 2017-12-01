@@ -5,10 +5,6 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
 from ..models import User, Role, Post, Permission, Comment
 from ..decorators import admin_required, permission_required
-from config import APP_STATIC
-import json
-import os
-from flask_paginate import Pagination, get_page_parameter
 
 
 @main.route('/', methods=["GET", "POST"])
@@ -225,57 +221,6 @@ def moderate_disable(id):
     comment.disabled = True
     db.session.add(comment)
     return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
-
-
-@main.route('/gulnazar')
-def gulnazar_gallery():
-    page = request.args.get(get_page_parameter(), type=int, default=1)
-
-    sql = "SELECT date,url FROM `gallery` WHERE name=%s ORDER BY `date` DESC limit %s, %s"
-    sql2 = "SELECT COUNT(*) FROM `gallery` WHERE name=%s "
-    result = db.engine.execute(sql, ('gulnazar', page-1, page+9)).fetchall()
-    count = db.engine.execute(sql2, 'gulnazar').fetchall()[0]['COUNT(*)']
-    # with open(os.path.join(APP_STATIC, 'gulnazar.json'), 'r', encoding='utf-8') as json_file:
-    #     single_list = json.load(json_file)
-
-    all_pic_list = []
-    width_list = []
-    for x in result:
-        pic_list = dict()
-        pic_list['date'] = x[0]
-        url_list = x[1].split()
-
-        length = len(url_list)
-        width = 0
-        if length == 1:
-            width = 12
-        elif 1 < length < 4:
-            width = 12 / length
-        elif length == 4:
-            width = 6
-        elif 4 < length < 9:
-            width = 12 / int(length / 2)
-        elif length == 9:
-            width = 4
-        width_list.append(int(width))
-
-        new_url_list = []
-        for url in url_list:
-            sub = url.split('/')[3]
-            small = url.replace(sub, 'mw690')
-            large = url.replace(sub, 'large')
-
-            new_url = {
-                'small': small,
-                'large': large
-            }
-            new_url_list.append(new_url)
-        pic_list['url'] = new_url_list
-        all_pic_list.append(pic_list)
-
-    pagination = Pagination(page=page, total=count, bs_version=4, per_page=10)
-
-    return render_template('gulnazar.html', all_pic_list=all_pic_list, width_list=width_list, pagination=pagination)
 
 
 @main.route('/hkxj')
