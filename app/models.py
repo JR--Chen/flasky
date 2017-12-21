@@ -332,5 +332,3 @@ class WechatUser(db.Model):
     passwd = db.Column(db.String(32))
 
 
-if __name__ == '__main__':
-    print(db)

@@ -1,7 +1,7 @@
 from ..models import WechatUser
 from wechat_sdk.messages import TextMessage, EventMessage
-from flask import url_for
-from .. import db
+from flask import url_for, current_app
+from .. import db, q
 
 
 def message_handle(message, basic):
@@ -99,10 +99,23 @@ def _text_reply(content, source, basic):
 
         reply = '你还没有绑定'
 
-        if user is None:
+        if user is not None:
             db.session.delete(user)
             db.session.commit()
             reply = '解除绑定成功'
+        response = basic.response_text(content=reply)
+
+    elif content.startswith('push'):
+        current_app.logger.info(q)
+        q.put(content)
+        reply = '消息已经加入队列'
+        response = basic.response_text(content=reply)
+
+    elif content.startswith('get'):
+        if q.empty() is True:
+            reply = '消息队列为空'
+        else:
+            reply = q.get()
         response = basic.response_text(content=reply)
 
     return response

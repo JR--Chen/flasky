@@ -1,9 +1,9 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, app
 from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
 from ..models import User
-from ..email import send_email
+from ..emails import send_email
 from .forms import LoginForm, RegistrationForm
 
 
@@ -51,7 +51,7 @@ def register():
         token = user.generate_confirmation_token()
 
         send_email(user.email, 'Confirm Your Account',
-                   'auth/email/confirm', user=user, token=token)
+                   'auth/email/confirm', user=str(user), token=token.decode('utf-8'))
 
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('auth.login'))

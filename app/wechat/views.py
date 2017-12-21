@@ -1,14 +1,19 @@
 import requests
 import os
-from flask import render_template, redirect, Response, request, flash, url_for
+from flask import render_template, redirect, Response, request, flash, url_for, current_app
 from wechat_sdk import WechatConf, WechatBasic
 from wechat_sdk.exceptions import ParseError
 from time import time
+from datetime import datetime
+from queue import Queue
 from . import wechat
 from .forms import LoginForm
 from .message_handler import message_handle
 from ..models import AccessToken, WechatUser
 from .. import db
+
+
+q = Queue()
 
 
 @wechat.route('/signature', methods=["GET", "POST"])
@@ -81,6 +86,38 @@ def login(openid):
             db.session.commit()
             flash('绑定成功，回到公众号界面回复关键词即可。')
     return render_template('wechat/login.html', form=form)
+
+
+@wechat.route('/')
+def index():
+
+    html = """
+<br>
+<center><h3>Redis Message Queue</h3>
+<br>
+<a href="{}">生产消费者模式</a>
+<br>
+<br>
+<a href="{}">发布订阅者模式</a>
+</center>
+""".format(url_for('wechat.prodcons'), url_for('wechat.pubsub'))
+    return html
+
+
+@wechat.route('/prodcons')
+def prodcons():
+    current_app.logger.info(datetime.now())
+    q.put(datetime.now())
+    # elem = random.randrange(10)
+    # rcon.lpush(prodcons_queue, elem)
+    # app.logger.info("lpush {} -- {}".format(prodcons_queue, elem))
+    return redirect(url_for('wechat.index'))
+
+
+@wechat.route('/pubsub')
+def pubsub():
+    current_app.logger.info(q.qsize())
+    return redirect(url_for('wechat.index'))
 
 
 def getbasic():
