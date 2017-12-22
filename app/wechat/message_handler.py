@@ -1,7 +1,8 @@
 from ..models import WechatUser
 from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for, current_app
-from .. import db, q
+from .. import db
+from ..redis_orm import RedisQueue, RedisHash, RedisSet
 
 
 def message_handle(message, basic):
@@ -105,17 +106,34 @@ def _text_reply(content, source, basic):
             reply = '解除绑定成功'
         response = basic.response_text(content=reply)
 
-    elif content.startswith('push'):
-        current_app.logger.info(q)
-        q.put(content)
-        reply = '消息已经加入队列'
+    elif content.startswith('put'):
+        message_queue = RedisQueue(name='test')
+        message_dict = RedisHash(name='test')
+        superuser = RedisSet(name='superuser')
+        issuper = source.encode('utf-8') in superuser
+        if issuper or source.encode('utf-8') not in message_dict:
+            if len(message_queue) == 0:
+                reply = '备用消息'
+            else:
+                reply = message_queue.get().decode('utf-8')
+            if issuper:
+                reply += reply+'\n队列里还有%s条消息' % len(message_queue)
+            message_queue.put(content)
+        else:
+            reply = '已经发送过信息'
+
+        message_dict[source] = content
         response = basic.response_text(content=reply)
 
-    elif content.startswith('get'):
-        if q.empty() is True:
-            reply = '消息队列为空'
-        else:
-            reply = q.get()
+    elif content == 'superuser':
+        superuser = RedisSet(name='superuser')
+        superuser.add(source)
+        reply = source
+
+        response = basic.response_text(content=reply)
+
+    elif content == 'openid':
+        reply = source
         response = basic.response_text(content=reply)
 
     return response

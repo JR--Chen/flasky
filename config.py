@@ -28,8 +28,6 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'mysql+pymysql://root@localhost:3306/flask?charset=utf8'
-    CELERY_BROKER_URL = 'redis://119.29.119.49:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://119.29.119.49:6379/0'
 
 
 class TestingConfig(Config):
