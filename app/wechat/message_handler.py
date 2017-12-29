@@ -106,28 +106,60 @@ def _text_reply(content, source, basic):
             reply = '解除绑定成功'
         response = basic.response_text(content=reply)
 
-    elif content.startswith('put'):
+    elif content.startswith('平安夜'):
         message_queue = RedisQueue(name='test')
         message_dict = RedisHash(name='test')
+        poem_queue = RedisQueue(name='poem')
         superuser = RedisSet(name='superuser')
         issuper = source.encode('utf-8') in superuser
-        if issuper or source.encode('utf-8') not in message_dict:
-            if len(message_queue) == 0:
-                reply = '备用消息'
-            else:
-                reply = message_queue.get().decode('utf-8')
-            if issuper:
-                reply += reply+'\n队列里还有%s条消息' % len(message_queue)
-            message_queue.put(content)
-        else:
-            reply = '已经发送过信息'
+        content = content.split('平安夜')[1].strip()
 
+        if content == '':
+            reply = '要在平安夜后面加你想分享的话才能收到别人的话喔'
+
+        else:
+            if issuper or source.encode('utf-8') not in message_dict:
+                if len(message_queue) == 0:
+                    reply = '且将新火试新茶，诗酒趁年华。'
+                else:
+                    message = message_queue.get_nowait()
+                    if message is None:
+                        poem = poem_queue.get_nowait()
+                        if poem is None:
+                            message = '你是少年的欢喜\n这句话倒过来还是你'
+                        else:
+                            message = poem.decode('utf-8')
+                    else:
+                        message = message.decode('utf-8')
+                    reply = message.strip()
+                if issuper:
+                    reply += '\n队列里还有%s条消息' % len(message_queue)
+
+                message_queue.put(content)
+                message_dict[source] = content
+                message_queue.execute()
+                message_dict.execute()
+            else:
+                reply = '您已经发送过消息了，下次活动期待你参与'
+
+        response = basic.response_text(content=reply)
+
+    elif content.startswith('put'):
+        message_queue = RedisQueue(name='poem')
+        message_dict = RedisHash(name='test')
+        content = content.split('put')[1]
+
+        reply = '队列里还有%s条消息' % len(message_queue)
+        message_queue.put(content)
         message_dict[source] = content
+        message_dict.execute()
+        message_queue.execute()
         response = basic.response_text(content=reply)
 
     elif content == 'superuser':
         superuser = RedisSet(name='superuser')
         superuser.add(source)
+        superuser.execute()
         reply = source
 
         response = basic.response_text(content=reply)

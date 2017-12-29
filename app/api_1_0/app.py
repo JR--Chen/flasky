@@ -3,7 +3,7 @@ import requests
 from . import api
 
 
-@api.route('/app/login/', methods=['POST'])
+@api.route('/app/login', methods=['POST'])
 def app_login():
     userid = request.values.get('userid', 0)
     password = request.values.get('password', 0)
@@ -27,7 +27,7 @@ def get_grade():
     return jsonify(result.json())
 
 
-@api.route('/kebiao/', methods=['POST'])
+@api.route('/app/kebiao/', methods=['POST'])
 def kebiao():
     stuinfo = request.values.get('stuinfo', 0)
     result = requests.post(url='http://127.0.0.1:9000/app/kebiao', data={'stuinfo': stuinfo})

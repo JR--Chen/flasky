@@ -22,6 +22,13 @@ class Client:
         """The default connection parameters are: host='localhost', port=6379, db=0"""
         self.db = redis.Redis(connection_pool=get_pool(), **redis_kwargs)
         self.key = '%s:%s' % (namespace, name)
+        self.pipe = self.db.pipeline(transaction=True)
+
+    def execute(self):
+        self.pipe.execute()
+
+    def save(self):
+        self.pipe.save()
 
 
 class RedisQueue(Client):
@@ -53,16 +60,21 @@ class RedisQueue(Client):
         if necessary until an item is available."""
         if block:
             item = self.db.blpop(self.key, timeout=timeout)
+
         else:
             item = self.db.lpop(self.key)
 
-        if item:
+        if not isinstance(item, bytes) and item is not None:
             item = item[1]
+
         return item
 
     def get_nowait(self):
         """Equivalent to get(False)."""
         return self.get(False)
+
+    def lrange(self):
+        return self.db.lrange(self.key, 0, self.__len__()-1)
 
 
 class RedisSet(Client):
@@ -75,7 +87,10 @@ class RedisSet(Client):
         self.db.sadd(self.key, value)
 
     def ismembers(self, value):
-        self.db.sismember(name=self.key, value=value)
+        return self.db.sismember(name=self.key, value=value)
+
+    def members(self):
+        return self.db.smembers(self.key)
 
     def __contains__(self, item):
         return self.ismembers(item)
@@ -90,6 +105,9 @@ class RedisHash(Client):
     def keys(self):
         return self.db.hkeys(name=self.key)
 
+    def delete(self, key):
+        self.db.hdel(self.key, key)
+
     def __len__(self):
         return self.db.hlen(name=self.key)
 
@@ -101,6 +119,5 @@ class RedisHash(Client):
 
     def __contains__(self, item):
         return self.db.hexists(self.key, item)
-
 
 
