@@ -4,16 +4,12 @@ from flask import render_template, redirect, Response, request, flash, url_for, 
 from wechat_sdk import WechatConf, WechatBasic
 from wechat_sdk.exceptions import ParseError
 from time import time
-from datetime import datetime
-from queue import Queue
 from . import wechat
 from .forms import LoginForm
 from .message_handler import message_handle
 from ..models import AccessToken, WechatUser
 from .. import db
-
-
-q = Queue()
+from ..api_1_0.app import app_login
 
 
 @wechat.route('/signature', methods=["GET", "POST"])
@@ -62,62 +58,16 @@ def login(openid):
         if user is not None:
             flash('你已经绑定过了(*^__^*) ')
             return redirect(url_for('main.index'))
-        data = {
-            'userid': form.account.data,
-            'password': form.passwd.data
-        }
-        result = requests.post(url='http://127.0.0.1:9000/app/login', data=data)
-        result = result.json()
-        if result['status']['status'] != 200:
+
+        userid = form.account.data,
+        password = form.passwd.data
+        result = app_login(userid, password, openid)
+
+        if result['status'] != 200:
             flash('你的账号或者密码错误')
         else:
-            stuinfo = result['status']['stuinfo']
-            name = stuinfo['name']
-            if name.endswith('班'):
-                name = name[:-1]
-            user = WechatUser(
-                openid=openid,
-                account=form.account.data,
-                passwd=form.passwd.data,
-                name=name,
-                academy=stuinfo['major'],
-                classname=stuinfo['className'])
-            db.session.add(user)
-            db.session.commit()
             flash('绑定成功，回到公众号界面回复关键词即可。')
     return render_template('wechat/login.html', form=form)
-
-
-@wechat.route('/')
-def index():
-
-    html = """
-<br>
-<center><h3>Redis Message Queue</h3>
-<br>
-<a href="{}">生产消费者模式</a>
-<br>
-<br>
-<a href="{}">发布订阅者模式</a>
-</center>
-""".format(url_for('wechat.prodcons'), url_for('wechat.pubsub'))
-    return html
-
-
-@wechat.route('/prodcons')
-def prodcons():
-    current_app.logger.info(datetime.now())
-    q.put(datetime.now())
-    # elem = random.randrange(10)
-    # rcon.lpush(prodcons_queue, elem)
-    # app.logger.info("lpush {} -- {}".format(prodcons_queue, elem))
-    return redirect(url_for('wechat.index'))
-
-
-@wechat.route('/pubsub')
-def pubsub():
-    current_app.logger.info(q.qsize())
-    return redirect(url_for('wechat.index'))
 
 
 def getbasic():

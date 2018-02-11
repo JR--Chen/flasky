@@ -324,11 +324,11 @@ class AccessToken(db.Model):
 
 class WechatUser(db.Model):
     __tablename__ = 'wechatuser'
-    openid = db.Column(db.String(64), primary_key=True)
+    openid = db.Column(db.String(64))
     name = db.Column(db.String(32))
     academy = db.Column(db.String(64))
     classname = db.Column(db.String(64))
-    account = db.Column(db.Integer)
+    account = db.Column(db.Integer, primary_key=True)
     passwd = db.Column(db.String(32))
 
 

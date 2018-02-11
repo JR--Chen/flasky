@@ -5,6 +5,8 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
 from ..models import User, Role, Post, Permission, Comment
 from ..decorators import admin_required, permission_required
+from config import APP_STATIC
+import os
 
 
 @main.route('/', methods=["GET", "POST"])
@@ -223,6 +225,9 @@ def moderate_disable(id):
     return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/hkxj')
-def timi_sb():
-    return redirect('http://mp.weixin.qq.com/s/ahuX_8HJJVw149MVmffN1w')
+@main.route('/etnvu1SGBH.txt')
+def wxapp_web_confirm():
+    # 微信小程序网页认证
+    resp = make_response(open(os.path.join(APP_STATIC, 'etnvu1SGBH.txt')).read())
+    resp.headers["Content-type"] = "application/txt;charset=UTF-8"
+    return resp

@@ -36,7 +36,7 @@ def create_app(config_name):
     from .api_1_0 import api as api_1_0_blueprint
     from .gallery import gallery as gallery_blueprint
     app.register_blueprint(main_blueprint)
-    app.register_blueprint(gallery_blueprint)
+    app.register_blueprint(gallery_blueprint, url_prefix="/gallery")
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(wechat_blueprint, url_prefix='/wechat')
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')

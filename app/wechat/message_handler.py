@@ -1,3 +1,4 @@
+import datetime
 from ..models import WechatUser
 from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for, current_app
@@ -91,7 +92,28 @@ def _text_reply(content, source, basic):
 
             else:
                 for item in result:
-                    reply = reply+'科目:'+item[4]+'\n''日期:'+item[1]+'\n'+'时间:'+item[2]+'\n'+'教室:'+item[5]+'\n\n'
+                    reply = reply + '科目:' + item[4] + '\n''日期:' + item[1] + '\n' + '时间:' + item[2] + '\n' + '教室:' + \
+                            item[5] + '\n\n'
+
+            response = basic.response_text(content=reply)
+
+    elif content in ['补考', '补考时间']:
+        user = WechatUser.query.filter_by(openid=source).first()
+        if user is None:
+            response = _check_bind(source, basic)
+        else:
+            sql = r"SELECT * FROM 17_18bukao WHERE classname LIKE '%%{}%%'".format(user.classname)
+            result = db.engine.execute(sql).fetchall()
+            reply = ''
+
+            if result == []:
+                reply = '恭喜~你没有公共课需要补考'
+
+            else:
+                reply = '这是您所属班级的补考信息，不是个人的补考信息\n\n'
+                for item in result:
+                    reply = reply + '科目:' + item[3] + '\n''日期:' + item[1] + '\n' + '时间:' + item[2] + '\n' + '教室:' + \
+                            item[4] + '\n\n'
 
             response = basic.response_text(content=reply)
 
@@ -106,41 +128,48 @@ def _text_reply(content, source, basic):
             reply = '解除绑定成功'
         response = basic.response_text(content=reply)
 
-    elif content.startswith('平安夜'):
-        message_queue = RedisQueue(name='test')
-        message_dict = RedisHash(name='test')
-        poem_queue = RedisQueue(name='poem')
-        superuser = RedisSet(name='superuser')
-        issuper = source.encode('utf-8') in superuser
-        content = content.split('平安夜')[1].strip()
+    elif content.startswith('flag'):
 
-        if content == '':
-            reply = '要在平安夜后面加你想分享的话才能收到别人的话喔'
+        now = datetime.datetime.now()
+        passtieme = datetime.datetime.strptime('2017-12-30 17:41:20', '%Y-%m-%d %H:%M:%S')
 
+        if now > passtieme:
+            reply = '活动时间已经过了，下次记得早点参与'
         else:
-            if issuper or source.encode('utf-8') not in message_dict:
-                if len(message_queue) == 0:
-                    reply = '且将新火试新茶，诗酒趁年华。'
-                else:
-                    message = message_queue.get_nowait()
-                    if message is None:
-                        poem = poem_queue.get_nowait()
-                        if poem is None:
-                            message = '你是少年的欢喜\n这句话倒过来还是你'
-                        else:
-                            message = poem.decode('utf-8')
-                    else:
-                        message = message.decode('utf-8')
-                    reply = message.strip()
-                if issuper:
-                    reply += '\n队列里还有%s条消息' % len(message_queue)
+            message_queue = RedisQueue(name='flag')
+            message_dict = RedisHash(name='flag')
+            poem_queue = RedisQueue(name='poem')
+            superuser = RedisSet(name='superuser')
+            issuper = source.encode('utf-8') in superuser
+            content = content.split('flag')[1].strip()
 
-                message_queue.put(content)
-                message_dict[source] = content
-                message_queue.execute()
-                message_dict.execute()
+            if content == '':
+                reply = '不要发空消息哦~'
+
             else:
-                reply = '您已经发送过消息了，下次活动期待你参与'
+                if issuper or source.encode('utf-8') not in message_dict:
+                    if len(message_queue) == 0:
+                        reply = '且将新火试新茶，诗酒趁年华。'
+                    else:
+                        message = message_queue.get_nowait()
+                        if message is None:
+                            poem = poem_queue.get_nowait()
+                            if poem is None:
+                                message = '你是少年的欢喜\n这句话倒过来还是你'
+                            else:
+                                message = poem.decode('utf-8')
+                        else:
+                            message = message.decode('utf-8')
+                        reply = message.strip()
+                    if issuper:
+                        reply += '\n队列里还有%s条消息' % len(message_queue)
+
+                    message_queue.put(content)
+                    message_dict[source] = content
+                    message_queue.save()
+                    message_dict.save()
+                else:
+                    reply = '您已经发送过消息了，下次活动期待你参与'
 
         response = basic.response_text(content=reply)
 
@@ -152,14 +181,14 @@ def _text_reply(content, source, basic):
         reply = '队列里还有%s条消息' % len(message_queue)
         message_queue.put(content)
         message_dict[source] = content
-        message_dict.execute()
-        message_queue.execute()
+        message_dict.save()
+        message_queue.save()
         response = basic.response_text(content=reply)
 
     elif content == 'superuser':
         superuser = RedisSet(name='superuser')
         superuser.add(source)
-        superuser.execute()
+        superuser.save()
         reply = source
 
         response = basic.response_text(content=reply)
