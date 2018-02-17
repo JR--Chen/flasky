@@ -6,7 +6,10 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_pagedown import PageDown
 from .redis_orm import create_pool as create_redis_pool
-from config import config
+try:
+    from config import config
+except:
+    pass
 
 
 bootstrap = Bootstrap()
@@ -35,11 +38,13 @@ def create_app(config_name):
     from .wechat import wechat as wechat_blueprint
     from .api_1_0 import api as api_1_0_blueprint
     from .gallery import gallery as gallery_blueprint
+    from .cloudmusic import music as music_blueprint
     app.register_blueprint(main_blueprint)
     app.register_blueprint(gallery_blueprint, url_prefix="/gallery")
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(wechat_blueprint, url_prefix='/wechat')
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
+    app.register_blueprint(music_blueprint, url_prefix='/music')
 
     return app
 

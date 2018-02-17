@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html dir="ltr" class="uk-height-1-1 uk-notouch" lang="en-gb"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Netcase search</title>
+        <link rel="shortcut icon" href="http://www.getuikit.net/docs/images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon-precomposed" href="http://www.getuikit.net/docs/images/apple-touch-icon.png">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/uikit.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/uikit.gradient.min.css') }}">
+        <script src="{{ url_for('static', filename='js/jquery-3.2.0.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+
+    <style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        $("button").click(function(){
+        data = $("#username").val();
+            if(data == ''){
+                return false
+            }
+        });
+    });
+
+
+</script>
+</head>
+
+    <body class="uk-height-1-1">
+
+        <div class="uk-vertical-align uk-text-center uk-height-1-1" >
+            <div class="uk-vertical-align-middle" style="width: 250px;">
+
+                <img class="uk-margin-bottom" src="/static/icon.png" alt="" width="100%" height="100%">
+
+                <form id="SearchForm" name="SearchForm" class="uk-panel uk-panel-box uk-form" method="post" action="{{ url_for("music.result") }}">
+                    <div class="uk-form-row">
+                        <input name="username" id="username" class="uk-width-1-1 uk-form-large" placeholder="输入云音乐昵称" type="text">
+                    </div>
+                    <div class="uk-form-row">
+                        <button type="submit" class="uk-width-1-2 uk-button uk-button-primary uk-button-large">Go</button>
+                    </div>
+{#                    <div class="uk-form-row uk-text-small">#}
+{#                        <label class="uk-float-left"><input type="checkbox"> Remember Me</label>#}
+{#                        <a class="uk-float-right uk-link uk-link-muted" href="#">Forgot Password?</a>#}
+{#                    </div>#}
+                </form>
+
+            </div>
+        </div>
+
+
+
+</body></html>
