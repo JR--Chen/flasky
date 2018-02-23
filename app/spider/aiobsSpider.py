@@ -108,6 +108,12 @@ class AiobsSpider(BaseSpider):
         return balance
 
     def get_use_detial(self):
+        """
+
+        :return:返回一个数组,格式如下：
+         [('1', '2017年12月29日12:17:02', '2017年12月29日14:05:02', '0.60'),
+         ('2', '2017年12月29日05:27:02', '2017年12月29日09:40:27', '1.41')]
+        """
         item = re.search('(.*?)年(.*?)月(.*?)日', self.begin_date)
         s_year, s_month, s_day = item.group(1), item.group(2), item.group(3)
         data = {
@@ -148,5 +154,5 @@ if __name__ == '__main__':
     status = user.login()
     result = user.get_use_detial()
 
-    # print(result)
+    print(result)
 

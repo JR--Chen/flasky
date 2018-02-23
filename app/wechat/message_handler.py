@@ -4,6 +4,8 @@ from wechat_sdk.messages import TextMessage, EventMessage
 from flask import url_for, current_app
 from .. import db
 from ..redis_orm import RedisQueue, RedisHash, RedisSet
+from ..aiobs.service import netcard_info
+from ..aiobs.dao import findCardByID, findCardByUser
 
 
 def message_handle(message, basic):
@@ -77,6 +79,32 @@ def _text_reply(content, source, basic):
 
     elif content == '绑定':
         response = _check_bind(source, basic)
+
+    elif content == '网卡':
+        user = WechatUser.query.filter_by(openid=source).first()
+        if user is None:
+            response = _check_bind(source, basic)
+        else:
+            netcard = findCardByUser(user.account)
+            if netcard != []:
+                card_info = findCardByID(netcard[0][0])
+                card_id = card_info[0][0]
+                password = card_info[0][1]
+                netcard = netcard_info(card_id, password, user.account)
+                if netcard['status'] == 500:
+                    reply = '服务器给我们提了个问题，请联系吴彦祖~'
+                else:
+                    balance = netcard['card']['balance']
+                    details = netcard['card']['detail']
+
+                    reply = '网卡余额：{} \n\n最近3次使用情况:\n'.format(balance)
+
+                    for detail in details:
+                        reply += '开始时间{}\n结束时间{}\n 使用金额{}\n'.format(detail[1],detail[2],detail[3])
+
+            else:
+                reply = '你还没绑定网卡'
+                response = basic.response_text(content=reply)
 
     elif content in ['考试', '考试时间']:
         user = WechatUser.query.filter_by(openid=source).first()

@@ -1,6 +1,5 @@
-import requests
 import os
-from flask import render_template, redirect, Response, request, flash, url_for, current_app
+from flask import render_template, redirect, Response, request, flash, url_for
 from wechat_sdk import WechatConf, WechatBasic
 from wechat_sdk.exceptions import ParseError
 from time import time
@@ -9,7 +8,7 @@ from .forms import LoginForm
 from .message_handler import message_handle
 from ..models import AccessToken, WechatUser
 from .. import db
-from ..api_1_0.app import app_login
+from ..urp.service import login as urp_login
 
 
 @wechat.route('/signature', methods=["GET", "POST"])
@@ -61,12 +60,14 @@ def login(openid):
 
         userid = form.account.data,
         password = form.passwd.data
-        result = app_login(userid, password, openid)
+        result = urp_login(userid[0], password, openid)
 
-        if result['status'] != 200:
-            flash('你的账号或者密码错误')
-        else:
+        if result['status'] == 200:
             flash('绑定成功，回到公众号界面回复关键词即可。')
+        elif result['status'] == 400:
+            flash('你的账号或者密码错误')
+        elif result['status'] == 500:
+            flash('网络繁忙，稍后再试')
     return render_template('wechat/login.html', form=form)
 
 

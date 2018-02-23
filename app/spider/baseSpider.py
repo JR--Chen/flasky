@@ -1,5 +1,4 @@
 import requests
-import json
 
 
 class BaseSpider:
@@ -21,7 +20,7 @@ class BaseSpider:
 
     def get_html(self, url, method, data=None, **kwargs):
         response = None
-        print('request url: %s with cookie:%s' % (url, dict(self.session.cookies)))
+        # print('request url: %s with cookie:%s' % (url, dict(self.session.cookies)))
 
         if method == 'GET':
             response = self.session.get(url, headers=self.headers, **kwargs)

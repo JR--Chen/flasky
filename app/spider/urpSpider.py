@@ -33,9 +33,8 @@ headers = {
 
 
 class URPSpider(BaseSpider):
-    def __init__(self, account, passwd, openid=None):
+    def __init__(self, account, passwd):
         super().__init__()
-        self.openid = openid
         self.account = account
         self.passwd = passwd
         self.classname = None
@@ -71,7 +70,6 @@ class URPSpider(BaseSpider):
             resp = super().get_html(stuinfoURL, 'GET', **kwargs)
 
         except ReadTimeout:
-            # print('user info ReadTimeout')
             return None
 
         content = resp.text
@@ -106,7 +104,6 @@ class URPSpider(BaseSpider):
         everGrades = {}
         nowGrade = []
 
-
         try:
             resp = super().get_html(bxqURL, 'GET', **kwargs)
 
@@ -115,8 +112,6 @@ class URPSpider(BaseSpider):
             return None
 
         text = resp.text
-
-        print(text)
 
         myItems = re.findall('<tr.*?class="odd".*?</td>.*?</td>.*?<td align="center">(.*?)</td>.*?</td>.*?<td align="'
                              'center">.*?</td>.*?<td align="center">(.*?)</td>.*?<td align="center">(.*?)</td>', text,
@@ -171,11 +166,7 @@ class URPSpider(BaseSpider):
 
         if status == 200:
             data['stuinfo'] = self.user_info()
-            if app is not None:
-                with app.app_context():
-                    self.save_user_info()
-            else:
-                self.save_user_info()
+
         return data
 
     def get_user_info_async(self, retry=-1):
@@ -217,4 +208,3 @@ class URPSpider(BaseSpider):
 if __name__ == '__main__':
     urp = URPSpider(2014025838, 1)
     result = urp.get_grade(retry=-1)
-    # print(result)
