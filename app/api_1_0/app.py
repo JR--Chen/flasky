@@ -104,9 +104,9 @@ def get_grade(userid, getAll=False):
 
     user = WechatUser.query.filter_by(account=userid).first()
     password = user.passwd
-    student = URPSpider(userid, password, getAll)
+    student = URPSpider(userid, password)
     try:
-        result = student.get_grade(retry=8)
+        result = student.get_grade(getAll, retry=8)
     except []:
         result = {
             'status': 500

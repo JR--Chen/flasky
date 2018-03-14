@@ -175,7 +175,7 @@ class URPSpider(BaseSpider):
         self.async_task(self.get_user_info, retry=retry, app=app)
 
     @retry_task
-    def get_grade(self, retry=0):
+    def get_grade(self, getAll=False, retry=0):
         status = self.login(timeout=5)
         grade = None
         data = {
@@ -184,7 +184,7 @@ class URPSpider(BaseSpider):
         }
 
         if status == 200:
-            data['grade'] = self.grade(getAll=True)
+            data['grade'] = self.grade(getAll=getAll)
 
         return data
 

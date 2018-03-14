@@ -6,6 +6,8 @@ from .. import db
 from ..redis_orm import RedisQueue, RedisHash, RedisSet
 from ..aiobs.service import netcard_info
 from ..aiobs.dao import findCardByID, findCardByUser
+from ..axinfu.service import axinfu_info
+from ..axinfu.dao import findUserByUserID
 
 
 def message_handle(message, basic):
@@ -80,7 +82,17 @@ def _text_reply(content, source, basic):
     elif content == '绑定':
         response = _check_bind(source, basic)
 
-    elif content == '网卡':
+    elif content in ['一卡通', '饭卡', '校园卡']:
+        user = WechatUser.query.filter_by(openid=source).first()
+        if user is None:
+            response = _check_bind(source, basic)
+        else:
+            card = findUserByUserID(user.account)
+            if card != []:
+                pass
+
+
+    elif content in ['网卡', '网费']:
         user = WechatUser.query.filter_by(openid=source).first()
         if user is None:
             response = _check_bind(source, basic)
@@ -100,11 +112,12 @@ def _text_reply(content, source, basic):
                     reply = '网卡余额：{} \n\n最近3次使用情况:\n'.format(balance)
 
                     for detail in details:
-                        reply += '开始时间{}\n结束时间{}\n 使用金额{}\n'.format(detail[1],detail[2],detail[3])
+                        reply += '开始时间{}\n结束时间{}\n 使用金额{}\n'.format(detail[1], detail[2], detail[3])
 
             else:
                 reply = '你还没绑定网卡'
-                response = basic.response_text(content=reply)
+
+            response = basic.response_text(content=reply)
 
     elif content in ['考试', '考试时间']:
         user = WechatUser.query.filter_by(openid=source).first()
@@ -132,7 +145,6 @@ def _text_reply(content, source, basic):
         else:
             sql = r"SELECT * FROM 17_18bukao WHERE classname LIKE '%%{}%%'".format(user.classname)
             result = db.engine.execute(sql).fetchall()
-            reply = ''
 
             if result == []:
                 reply = '恭喜~你没有公共课需要补考'
@@ -156,20 +168,22 @@ def _text_reply(content, source, basic):
             reply = '解除绑定成功'
         response = basic.response_text(content=reply)
 
-    elif content.startswith('flag'):
+    elif content.startswith('无主情话'):
 
         now = datetime.datetime.now()
-        passtieme = datetime.datetime.strptime('2017-12-30 17:41:20', '%Y-%m-%d %H:%M:%S')
+        starttime = datetime.datetime.strptime('2018-03-15 00:00:00', '%Y-%m-%d %H:%M:%S')
+        passtieme = datetime.datetime.strptime('2018-03-15 00:00:00', '%Y-%m-%d %H:%M:%S')
 
         if now > passtieme:
             reply = '活动时间已经过了，下次记得早点参与'
+
         else:
             message_queue = RedisQueue(name='flag')
             message_dict = RedisHash(name='flag')
             poem_queue = RedisQueue(name='poem')
             superuser = RedisSet(name='superuser')
             issuper = source.encode('utf-8') in superuser
-            content = content.split('flag')[1].strip()
+            content = content.split('无主情话')[1].strip()
 
             if content == '':
                 reply = '不要发空消息哦~'

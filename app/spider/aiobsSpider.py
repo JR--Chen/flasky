@@ -62,13 +62,15 @@ class AiobsSpider(BaseSpider):
         resp = super().get_html(login_url, 'POST', data=data)
         content = resp.text.encode('ISO-8859-1').decode('gbk')
         balance = re.search("<td align=center><input type='radio' CHECKED name='select' value=(.*?)></td><td align=center nowrap>.*?</td><td align=center nowrap>.*?</td><td align=center nowrap>"
-                         ".*?</td><td align=center nowrap>人民币</td><td align=center nowrap>(.*?)</td><td align=center nowrap>.*?</td><td align=center nowrap>人工加锁</td>", content)
+                         ".*?</td><td align=center nowrap>人民币</td><td align=center nowrap>(.*?)</td><td align=center nowrap>.*?</td><td align=center nowrap>.*?</td>", content)
+
         if balance is not None:
             self.balance_select_value = balance.group(1)
             self.begin_date = balance.group(2)
 
             detail = re.search("<td align=center><input type='radio' CHECKED name='select' value=(.*?)></td><td align=center nowrap>.*?</td><td align=center nowrap>.*?</td><td align=center nowrap>宽带PPPOE\(Cable-PPPoE服务模板\)"
-                               "</td><td align=center nowrap>.*?</td><td align=center nowrap>人工加锁</td></tr>", content)
+                               "</td><td align=center nowrap>.*?</td><td align=center nowrap>.*?</td></tr>", content)
+            print(detail)
             self.detail_select_value = detail.group(1)
             return 200
         else:
@@ -114,7 +116,9 @@ class AiobsSpider(BaseSpider):
          [('1', '2017年12月29日12:17:02', '2017年12月29日14:05:02', '0.60'),
          ('2', '2017年12月29日05:27:02', '2017年12月29日09:40:27', '1.41')]
         """
+        print(self.begin_date)
         item = re.search('(.*?)年(.*?)月(.*?)日', self.begin_date)
+
         s_year, s_month, s_day = item.group(1), item.group(2), item.group(3)
         data = {
             'e_day': datetime.now().day,
@@ -149,7 +153,7 @@ class AiobsSpider(BaseSpider):
 
 
 if __name__ == '__main__':
-    user = AiobsSpider(4510002871086, '45p7tjxo')
+    user = AiobsSpider(4510002870690, 'k057ff26')
     user.get_key_and_code()
     status = user.login()
     result = user.get_use_detial()
